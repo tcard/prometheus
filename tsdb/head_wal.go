@@ -1248,9 +1248,10 @@ func decodeSeriesFromChunkSnapshot(d *record.Decoder, b []byte) (csr chunkSnapsh
 		return csr, err
 	}
 
-	csr.mc = &memChunk{listLen: 1}
-	csr.mc.minTime = dec.Be64int64()
-	csr.mc.maxTime = dec.Be64int64()
+	mc := newMemChunk(nil, nil)
+	mc.minTime = dec.Be64int64()
+	mc.maxTime = dec.Be64int64()
+	csr.mc = &mc
 	enc := chunkenc.Encoding(dec.Byte())
 
 	// The underlying bytes gets re-used later, so make a copy.
@@ -1262,7 +1263,7 @@ func decodeSeriesFromChunkSnapshot(d *record.Decoder, b []byte) (csr chunkSnapsh
 	if err != nil {
 		return csr, fmt.Errorf("chunk from data: %w", err)
 	}
-	csr.mc.chunk = chk
+	mc.chunk = chk
 
 	switch enc {
 	case chunkenc.EncXOR, chunkenc.EncXOR2:
